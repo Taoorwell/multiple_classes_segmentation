@@ -50,8 +50,11 @@ if __name__ == '__main__':
     model.summary()
     learning_rate_scheduler = tf.keras.callbacks.LearningRateScheduler(lr_cosine_decay, verbose=1)
     model.fit(train_datasets,
+              steps_per_epoch=len(train_datasets),
               batch_size=batch_size, verbose=1,
               epochs=epochs,
-              validation_data=valid_datasets)
+              validation_data=valid_datasets,
+              validation_steps=len(valid_datasets),
+              callbacks=[learning_rate_scheduler])
 
 
