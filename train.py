@@ -35,7 +35,7 @@ if __name__ == '__main__':
     X_train, X_test, y_train, y_test = train_test_split(image_datasets, mask_datasets, test_size=0.20, random_state=42)
 
     train_datasets = datasets(X_train, y_train, batch_size=10)
-    valid_datasets = datasets(X_test, y_test, batch_size=10)
+    valid_datasets = datasets(X_test[:-1], y_test[:-1], batch_size=10)
     # Model preparation
     optimizer = tf.optimizers.Adam(learning_rate=initial_learning_rate)
 
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     learning_rate_scheduler = tf.keras.callbacks.LearningRateScheduler(lr_cosine_decay, verbose=1)
     model.fit(train_datasets,
               steps_per_epoch=len(train_datasets),
-              batch_size=batch_size, verbose=1,
+              verbose=1,
               epochs=epochs,
               validation_data=valid_datasets,
               validation_steps=len(valid_datasets),
