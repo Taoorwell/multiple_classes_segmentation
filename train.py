@@ -75,4 +75,7 @@ if __name__ == '__main__':
               validation_steps=len(valid_datasets),
               callbacks=[learning_rate_scheduler])
 
+    # model save
+    model.save_weights('../weights/ckpt')
+
 
