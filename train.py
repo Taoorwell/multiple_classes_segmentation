@@ -6,7 +6,22 @@ from dataloader import load_image, load_mask
 from models import jacard_coef, multi_unet_model, dice_loss, combined_loss
 from sklearn.model_selection import train_test_split
 
+
+def datasets(x, y, batch_size):
+    options = tf.data.Options()
+    options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.DATA
+    AUTOTUNE = tf.data.experimental.AUTOTUNE
+    dataset = tf.data.Dataset.from_tensor_slices((x, y))
+    dataset = dataset.batch(batch_size)
+    dataset = dataset.prefetch(AUTOTUNE)
+    dataset = dataset.with_options(options)
+    return dataset
+
+
 if __name__ == '__main__':
+    initial_learning_rate = 0.0001
+    epochs = 100
+    batch_size = 10
     # Datasets preparation
     root_directory = r'../dataset/'
     image_datasets = load_image(root_directory, patch_size=256)
@@ -19,9 +34,9 @@ if __name__ == '__main__':
     # print(image_datasets.shape, mask_datasets.shape)
     X_train, X_test, y_train, y_test = train_test_split(image_datasets, mask_datasets, test_size=0.20, random_state=42)
 
+    train_datasets = datasets(X_train, y_train, batch_size=10)
+    valid_datasets = datasets(X_test, y_test, batch_size=10)
     # Model preparation
-    initial_learning_rate = 0.0001
-    epochs = 100
     optimizer = tf.optimizers.Adam(learning_rate=initial_learning_rate)
 
     def lr_cosine_decay(e):
@@ -34,9 +49,9 @@ if __name__ == '__main__':
         model.compile(optimizer=optimizer, loss=combined_loss, metrics=[jacard_coef])
     model.summary()
     learning_rate_scheduler = tf.keras.callbacks.LearningRateScheduler(lr_cosine_decay, verbose=1)
-    model.fit(X_train, y_train,
-              batch_size=10, verbose=1,
+    model.fit(train_datasets,
+              batch_size=batch_size, verbose=1,
               epochs=epochs,
-              validation_data=(X_test, y_test))
+              validation_data=valid_datasets)
 
 
