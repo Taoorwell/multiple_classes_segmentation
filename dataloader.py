@@ -16,7 +16,7 @@ def load_image(root_directory, patch_size=256):
         # print(path)
         dirname = path.split(os.path.sep)[-1]
         if dirname == 'images':  # Find all 'images' directories
-            images = os.listdir(path)  # List of all image names in this subdirectory
+            images = sorted(os.listdir(path))  # List of all image names in this subdirectory
             for i, image_name in enumerate(images):
                 if image_name.endswith(".jpg"):  # Only read jpg images...
 
@@ -58,7 +58,7 @@ def load_mask(root_directory, patch_size=256):
         # print(path)
         dirname = path.split(os.path.sep)[-1]
         if dirname == 'masks':  # Find all 'images' directories
-            masks = os.listdir(path)  # List of all image names in this subdirectory
+            masks = sorted(os.listdir(path))  # List of all image names in this subdirectory
             for i, mask_name in enumerate(masks):
                 if mask_name.endswith(".png"):  # Only read png images... (masks in this dataset)
 
