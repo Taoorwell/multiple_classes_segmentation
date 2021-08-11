@@ -46,7 +46,7 @@ def load_image(root_directory, patch_size=256):
                             single_patch_img = single_patch_img[
                                 0]  # Drop the extra unecessary dimension that patchify adds.
                             image_dataset.append(single_patch_img)
-    return np.array(image_dataset)
+    return np.array(image_dataset, dtype=np.float32)
 
 # Now do the same as above for masks
 # For this specific dataset we could have added masks to the above code as masks have extension png

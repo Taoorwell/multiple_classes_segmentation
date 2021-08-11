@@ -19,6 +19,7 @@ def dice_loss(y_true, y_pred):
     return 1 - (2 * intersection + 1.0) / (tf.reduce_sum(y_true_f) + tf.reduce_sum(y_pred_f) + 1.0)
 
 
+@tf.autograph.experimental.do_not_convert
 def log_conv(y_true):
     y_true_1 = tf.math.argmax(y_true, axis=-1)
     y_true_1 = tf.cast(y_true_1, tf.float32)

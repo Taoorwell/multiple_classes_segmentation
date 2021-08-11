@@ -1,17 +1,35 @@
 import math
 import numpy as np
 import tensorflow as tf
+import albumentations as a
 from tensorflow.keras.utils import to_categorical
 from dataloader import load_image, load_mask
 from models import jacard_coef, multi_unet_model, dice_loss, combined_loss
 from sklearn.model_selection import train_test_split
 
 
-def datasets(x, y, batch_size):
+def datasets(x_, y_, batch_size):
     options = tf.data.Options()
     options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.DATA
     AUTOTUNE = tf.data.experimental.AUTOTUNE
-    dataset = tf.data.Dataset.from_tensor_slices((x, y))
+    dataset = tf.data.Dataset.from_tensor_slices((x_, y_))
+
+    @tf.autograph.experimental.do_not_convert
+    def augment_function(x, y):
+        def augment(x, y):
+            aug = a.Compose([a.VerticalFlip(p=.5),
+                             a.HorizontalFlip(p=.5),
+                             a.RandomRotate90(p=0.5)])
+            augmented = aug(image=x, mask=y)
+            x2, y2 = augmented['image'], augmented['mask']
+            return x2, y2
+        x3, y3 = tf.numpy_function(augment, inp=(x, y), Tout=[tf.float32, tf.float32])
+        x3.set_shape((256, 256) + (3,))
+        y3.set_shape((256, 256) + (6,))
+        return x3, y3
+
+    dataset = dataset.map(augment_function, num_parallel_calls=AUTOTUNE)
+
     dataset = dataset.batch(batch_size)
     dataset = dataset.prefetch(AUTOTUNE)
     dataset = dataset.with_options(options)
