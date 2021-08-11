@@ -8,7 +8,7 @@ from models import jacard_coef, multi_unet_model, dice_loss, combined_loss
 from sklearn.model_selection import train_test_split
 
 
-def datasets(x_, y_, batch_size):
+def datasets(x_, y_, batch_size, mode):
     options = tf.data.Options()
     options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.DATA
     AUTOTUNE = tf.data.experimental.AUTOTUNE
@@ -27,8 +27,8 @@ def datasets(x_, y_, batch_size):
         x3.set_shape((256, 256) + (3,))
         y3.set_shape((256, 256) + (6,))
         return x3, y3
-
-    dataset = dataset.map(augment_function, num_parallel_calls=AUTOTUNE)
+    if mode == 'train':
+        dataset = dataset.map(augment_function, num_parallel_calls=AUTOTUNE)
 
     dataset = dataset.batch(batch_size)
     dataset = dataset.prefetch(AUTOTUNE)
@@ -52,8 +52,8 @@ if __name__ == '__main__':
     # print(image_datasets.shape, mask_datasets.shape)
     X_train, X_test, y_train, y_test = train_test_split(image_datasets, mask_datasets, test_size=0.20, random_state=42)
 
-    train_datasets = datasets(X_train, y_train, batch_size=10)
-    valid_datasets = datasets(X_test[:-1], y_test[:-1], batch_size=10)
+    train_datasets = datasets(X_train, y_train, batch_size=10, mode='train')
+    valid_datasets = datasets(X_test[:-1], y_test[:-1], batch_size=10, mode='valid')
     # Model preparation
     optimizer = tf.optimizers.Adam(learning_rate=initial_learning_rate)
 
