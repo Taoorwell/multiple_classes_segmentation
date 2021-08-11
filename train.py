@@ -1,3 +1,4 @@
+import math
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
@@ -17,14 +18,25 @@ if __name__ == '__main__':
     mask_datasets = to_categorical(labels, num_classes=len(np.unique(labels)))
     # print(image_datasets.shape, mask_datasets.shape)
     X_train, X_test, y_train, y_test = train_test_split(image_datasets, mask_datasets, test_size=0.20, random_state=42)
+
     # Model preparation
-    optimizer = tf.optimizers.Adam(learning_rate=0.001)
-    model = multi_unet_model(n_classes=6, IMG_HEIGHT=256, IMG_WIDTH=256, IMG_CHANNELS=3)
+    initial_learning_rate = 0.0001
+    epochs = 100
+    optimizer = tf.optimizers.Adam(learning_rate=initial_learning_rate)
+
+    def lr_cosine_decay(e):
+        cosine_decay = 0.5 * (1 + math.cos(math.pi * e / epochs))
+        return initial_learning_rate * cosine_decay
+
+    strategy = tf.distribute.MirroredStrategy()
+    with strategy.scope():
+        model = multi_unet_model(n_classes=6, IMG_HEIGHT=256, IMG_WIDTH=256, IMG_CHANNELS=3)
+        model.compile(optimizer=optimizer, loss=combined_loss, metrics=[jacard_coef])
     model.summary()
-    model.compile(optimizer=optimizer, loss=dice_loss, metrics=[jacard_coef])
+    learning_rate_scheduler = tf.keras.callbacks.LearningRateScheduler(lr_cosine_decay, verbose=1)
     model.fit(X_train, y_train,
               batch_size=10, verbose=1,
-              epochs=100,
+              epochs=epochs,
               validation_data=(X_test, y_test))
 
 
