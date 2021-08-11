@@ -119,8 +119,8 @@ Calculating RGB from HEX: #3C1098
 """
 # Convert HEX to RGB array
 # Try the following to understand how python handles hex values...
-a = int('3C', 16)  # 3C with base 16. Should return 60.
-print(a)
+# a = int('3C', 16)  # 3C with base 16. Should return 60.
+# print(a)
 # Do the same for all RGB channels in each hex code to convert to RGB
 Building = '#3C1098'.lstrip('#')
 Building = np.array(tuple(int(Building[i:i + 2], 16) for i in (0, 2, 4)))  # 60, 16, 152
@@ -163,6 +163,18 @@ def rgb_to_2d_label(label):
 
     return label_seg
 
+
+def label_2d_to_rgb(label):
+    rgb_label = np.zeros((label.shape + (3,)), dtype=np.uint8)
+
+    rgb_label[label == 0] = Building
+    rgb_label[label == 1] = Land
+    rgb_label[label == 2] = Road
+    rgb_label[label == 3] = Vegetation
+    rgb_label[label == 4] = Water
+    rgb_label[label == 5] = Unlabeled
+
+    return rgb_label
 
 # Another Sanity check, view few mages
 # image_number = np.random.randint(0, len(image_dataset))

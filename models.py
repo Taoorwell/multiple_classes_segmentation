@@ -64,7 +64,7 @@ def cross_entropy(y_true, y_pred, weight=False):
     return tf.reduce_mean(loss)
 
 
-def combined_loss(y_true, y_pred, weight=True):
+def combined_loss(y_true, y_pred, weight=False):
     eps = 1E-15
     ce = cross_entropy(y_true, y_pred, weight=weight)
     loss = ce - tf.math.log(jacard_coef(y_true, y_pred) + eps)

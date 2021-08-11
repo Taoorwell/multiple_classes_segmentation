@@ -76,6 +76,6 @@ if __name__ == '__main__':
               callbacks=[learning_rate_scheduler])
 
     # model save
-    model.save_weights('../weights/ckpt')
+    model.save_weights('../weights/ckpt_no_weight')
 
 
