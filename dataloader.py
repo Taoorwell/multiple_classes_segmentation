@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from patchify import patchify
 from PIL import Image
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
-from keras.utils import to_categorical
+# from tensorflow.keras.utils import to_categorical
 
 scaler = MinMaxScaler()
 
@@ -91,13 +91,7 @@ def load_mask(root_directory, patch_size=256):
     for i in range(mask_dataset.shape[0]):
         label = rgb_to_2d_label(mask_dataset[i])
         labels.append(label)
-
-    labels = np.array(labels)
-    labels = np.expand_dims(labels, axis=3)
-
-    print("Unique labels in label dataset are: ", np.unique(labels))
-    labels_cat = to_categorical(labels, num_classes=len(np.unique(labels)))
-    return labels_cat
+    return labels
 
 # Sanity check, view few mages
 # image_number = np.random.randint(0, len(image_dataset))
