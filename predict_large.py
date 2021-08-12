@@ -9,8 +9,8 @@ from matplotlib import pyplot as plt
 
 # Read the image needed to be predicted
 patch_size = 256
-file_path = r'../dataset/Tile 1/images/image_part_001.jpg'
-mask_path = r'../dataset/Tile 1/masks/image_part_001.png'
+file_path = r'../dataset/Tile 1/images/image_part_002.jpg'
+mask_path = r'../dataset/Tile 1/masks/image_part_002.png'
 
 image = cv.imread(file_path, 1)
 mask = cv.imread(mask_path, 1)
@@ -34,7 +34,7 @@ print(image.shape)
 # load model
 model = multi_unet_model(n_classes=6, IMG_WIDTH=SIZE_X, IMG_HEIGHT=SIZE_Y, IMG_CHANNELS=3)
 model.summary()
-model.load_weights(r'../weights/ckpt')
+model.load_weights(r'../weights/ckpt_no_weight')
 #
 # # model prediction
 pre = model.predict(np.expand_dims(image, axis=0))
